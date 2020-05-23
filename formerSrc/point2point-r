@@ -1,0 +1,20 @@
+%q11 same as q8
+dx=0.5
+dy=-0.5
+dtheta=-90 % orientation
+
+% logging the odometry
+log "$odox" "$odoy" "$odoth"
+
+ang = atan2(dy, dx) % calculating the angle
+ang = ang/3.1415926535932384626*180 % converting angle to radian
+wait 3
+
+dist=sqrt(dx*dx+dy*dy) % distance
+
+turn ang
+fwd dist
+stop
+ang = -ang
+turn ang
+turn dtheta 

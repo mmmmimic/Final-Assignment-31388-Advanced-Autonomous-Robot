@@ -1,0 +1,12 @@
+laser "scanpush cmd='zoneobst'"
+%drive @v 0.2 :($drivendist>1)
+%stop
+log "$l0" "$l1" "$l2" "$l3" "$l4" "$l5" "$l6" "$l7" "$l8" :($l1>0)
+wait 3
+turn 30
+log "$l0" "$l1" "$l2" "$l3" "$l4" "$l5" "$l6" "$l7" "$l8"
+wait 3
+turn 20
+log "$l0" "$l1" "$l2" "$l3" "$l4" "$l5" "$l6" "$l7" "$l8"
+wait 3
+

@@ -1,0 +1,2 @@
+followline "bm" @v 0.3 :($drivendist > 1.0)
+stop

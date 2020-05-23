@@ -1,0 +1,63 @@
+
+% feedback control
+
+%% x,y and theta value for goal pose % given in question 8
+xTw = 0
+yTw = 0
+thTw = 90*3.1415926535897932384626/180
+
+% define in moveToTaget function in MATLAB 
+% feedback parameters given in q7
+k_rho = 0.3
+k_alpha = 0.8
+k_beta = -0.35
+epoch = 0
+
+% coordinate transformation given in q10
+invtrans(xTw,yTw,thTw,$odox,$odoy,$odoth)
+
+% storing log values
+log "$odox" "$odoy" "$odoth"
+label "loop"
+epoch = epoch+1
+
+%
+xT = cos(thTw)*($odox-xTw)+sin(thTw)*($odoy-yTw)
+yT = -sin(thTw)*($odox-xTw)+cos(thTw)*($odoy-yTw)
+thT = $odoth-thTw
+thT = normalizeanglerad(thT)
+dx = -xT
+dy = -yT
+
+%define in moveTOTarget function in MATLAB
+
+rho = sqrt(dx*dx+dy*dy)
+alpha = -thT+atan2(dy, dx)
+beta = -thT-alpha
+alpha = normalizeanglerad(alpha)
+alpha = alpha%/3.1415926535897932384626*180
+beta = normalizeanglerad(beta)
+beta = beta%/3.1415926535897932384626*180
+
+
+v = k_rho*rho
+
+if(v<0.005) "velocity"
+label "continue"
+%define in moveToTaget function in MATLAB
+w = k_alpha*alpha+k_beta*beta
+% defined in robot2wheel function in MATLAB
+l  = 0.26 % measured
+wl = (2*v-w*l)/2  % vl is speed of left wheel
+wr = (2*v+w*l)/2 % vr is speed of right wheel
+motorcmds wl wr % given in the q10
+if(rho>0.01) "loop"
+
+if(abs(thT)>0.02) "loop"
+if (epoch==10000) "stop"
+label "stop"
+stop 
+label "velocity"
+v = v
+goto "continue"
+

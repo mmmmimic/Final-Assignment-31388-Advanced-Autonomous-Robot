@@ -1,0 +1,2 @@
+drive @v 0.2 :($irdistfrontleft<0.4)|($irdistfrontmiddle<0.4)|($irdistfrontright<0.4)
+stop

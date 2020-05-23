@@ -1,0 +1,88 @@
+#Simulation environment for the 31388 course
+
+#Include SMR robot model together with basic map and URG laser scanner
+include "smr.inc"
+include "map.inc"
+include "urg-04lx.inc"
+include "guidemark.inc"
+
+interval_sim 10
+
+# configure the GUI window
+window
+( 
+  size [ 600.000 750.000 ] 
+  center [0 0.200] 
+  scale 100.000
+  show_data 1              # 1=on 0=off
+)
+
+# load an environment bitmap
+floorplan
+( 
+  bitmap "test.png"
+  size [5.000 6.500 0.300]
+  pose [0 0  0 0]
+  name "385world"
+)
+
+linemap
+( 
+  bitmap "test.png"
+  size [5.000 6.500 0.010]
+  pose [0 0 0 0]
+  name "linemap"
+)
+
+
+
+# create a robot
+smr
+(
+  name "smr0"
+  pose [-1.500 -2.8  0  90]
+)
+
+guidemark
+(
+  name "gmk1"
+  pose [1.500  -2.000  0 180.000]
+  
+  fiducial_return 1
+  fiducial( fov 60 )
+)
+
+
+guidemark
+(
+  name "gmk2"
+  pose [1.700  -2.000  0 180.000]
+  
+  fiducial_return 2
+  fiducial( fov 60 )
+)
+
+guidemark
+(
+  name "gmk3"
+  pose [1.900  -2.000  0 180.000]
+  
+  fiducial_return 3
+  fiducial( fov 60 )
+)
+
+
+guidemark
+(
+  name "gmk4"
+  pose [2.100  -2.000  0 180.000]
+  
+  fiducial_return 4
+  fiducial( fov 60 )
+)
+
+box
+(
+  name "box1"
+  pose [-1 -2.5 0 0]
+)

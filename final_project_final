@@ -1,0 +1,693 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%FINAL PROJECT%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%31388%%%%%%%%%%%%%%%%%%%
+%%%%%%%%Advanced Autonomous Robots%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%Dennis Jensen, s155629%%%%%%%%%
+%%%%%%%%%%%Martin Jensen, s164033%%%%%%%%%
+%%%%%%%%%%%Theis  Jensen, s164022%%%%%%%%%
+%%%%%%%%%%%Stefan Larsen, s164029%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% laser update call
+laser "resetplanner"
+laser "scanget"
+laser "resetlocalizer" 
+
+% For logging purposes
+laser "scanset logopen"
+laser "scanset log=1"
+laser "odopose log=true"
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%MISSION%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% mission 1: follow guidemarks
+% mission 2: find object
+% mission 3: drive to goal
+
+%first mission is initialized
+mission = 1
+
+%first guidemark to visit
+gmkno = 2
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%CONSTANTS%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+fwdVel = 1.0 %forward velocity
+slowVel = 0.5 %slow forward velocity
+
+pi = 3.141592
+
+xlaser = 0.26 %laser offset in x-direction
+
+
+
+%-------------------
+% POINTS
+%-------------------
+% straight up from start position
+laser "addpoint pno=1 x=0.5 y=0.5"
+laser "addpoint pno=2 x=0.5 y=1.5"
+laser "addpoint pno=3 x=0.5 y=2.35"
+laser "addpoint pno=4 x=0.5 y=3.5"
+laser "addpoint pno=5 x=0.5 y=4.55"
+
+% top left straight right (Inside track)
+laser "addpoint pno=6 x=1.5 y=4.65"
+laser "addpoint pno=7 x=2.5 y=4.65"
+laser "addpoint pno=8 x=3.5 y=4.55"
+
+% Right corner and down (inside track)
+laser "addpoint pno=9 x=3.5 y=3.5"
+laser "addpoint pno=10 x=3.5 y=2.35"
+laser "addpoint pno=11 x=3.5 y=1.5"
+laser "addpoint pno=12 x=3.5 y=0.5"
+
+% Right corner bottom back to start
+laser "addpoint pno=13 x=2.5 y=0.5"
+laser "addpoint pno=14 x=1.5 y=0.5"
+
+% Left side out of track box
+laser "addpoint pno=15 x=-0.5 y=2.5"
+laser "addpoint pno=16 x=-0.5 y=3.5"
+laser "addpoint pno=17 x=-0.5 y=1.5"
+
+% Right side out of track box
+laser "addpoint pno=18 x=4.5 y=2.5"
+laser "addpoint pno=19 x=4.5 y=3.5"
+laser "addpoint pno=20 x=4.5 y=1.5"
+
+% From left side to the entrance of the red box (G13, G14)
+laser "addpoint pno=21 x=1.25 y=2.35"
+
+% Infront of the entrance of the red box
+laser "addpoint pno=22 x=2.0 y=2.25"
+
+% From right side to the entrance of the red box (G13, G14)
+laser "addpoint pno=23 x=2.75 y=2.35"
+
+% Inside the red box (G13, G14)
+%laser "addpoint pno=24 x=2 y=3"
+laser "addpoint pno=25 x=2 y=3.3"
+%% Inside the red box (G13)
+laser "addpoint pno=26 x=1.25 y=3.4"
+laser "addpoint pno=27 x=1.25 y=4.0"
+%%% Infront of G13
+laser "addpoint pno=28 x=1.4 y=4.0"
+%% Inside the red box (G14)
+laser "addpoint pno=29 x=2.8 y=3.4"
+laser "addpoint pno=30 x=2.8 y=4.0"
+%%% Infront of G14
+laser "addpoint pno=31 x=2.7 y=4.0"
+
+%-------------------
+% CONNECTIONS
+%-------------------
+laser "addcon pno1=1 pno2=2"
+laser "addcon pno1=2 pno2=1"
+
+laser "addcon pno1=2 pno2=3"
+laser "addcon pno1=3 pno2=2"
+
+laser "addcon pno1=3 pno2=4"
+laser "addcon pno1=4 pno2=3"
+
+laser "addcon pno1=4 pno2=5"
+laser "addcon pno1=5 pno2=4"
+
+laser "addcon pno1=5 pno2=6"
+laser "addcon pno1=6 pno2=5"
+
+laser "addcon pno1=6 pno2=7"
+laser "addcon pno1=7 pno2=6"
+
+laser "addcon pno1=7 pno2=8"
+laser "addcon pno1=8 pno2=7"
+
+laser "addcon pno1=8 pno2=9"
+laser "addcon pno1=9 pno2=8"
+
+laser "addcon pno1=9 pno2=10"
+laser "addcon pno1=10 pno2=9"
+
+laser "addcon pno1=10 pno2=11"
+laser "addcon pno1=11 pno2=10"
+
+laser "addcon pno1=11 pno2=12"
+laser "addcon pno1=12 pno2=11"
+
+laser "addcon pno1=12 pno2=13"
+laser "addcon pno1=13 pno2=12"
+
+laser "addcon pno1=13 pno2=14"
+laser "addcon pno1=14 pno2=13"
+
+laser "addcon pno1=14 pno2=1"
+laser "addcon pno1=1 pno2=14"
+
+laser "addcon pno1=3 pno2=15"
+laser "addcon pno1=15 pno2=3"
+
+laser "addcon pno1=15 pno2=16"
+laser "addcon pno1=16 pno2=15"
+
+laser "addcon pno1=15 pno2=17"
+laser "addcon pno1=17 pno2=15"
+
+laser "addcon pno1=10 pno2=18"
+laser "addcon pno1=18 pno2=10"
+
+laser "addcon pno1=18 pno2=19"
+laser "addcon pno1=19 pno2=18"
+
+laser "addcon pno1=18 pno2=20"
+laser "addcon pno1=20 pno2=18"
+
+laser "addcon pno1=3 pno2=21"
+laser "addcon pno1=21 pno2=3"
+
+laser "addcon pno1=21 pno2=22"
+laser "addcon pno1=22 pno2=21"
+
+laser "addcon pno1=22 pno2=25"
+laser "addcon pno1=25 pno2=22"
+
+%laser "addcon pno1=24 pno2=25"
+%laser "addcon pno1=25 pno2=24"
+
+laser "addcon pno1=25 pno2=26"
+laser "addcon pno1=26 pno2=25"
+
+laser "addcon pno1=26 pno2=27"
+laser "addcon pno1=27 pno2=26"
+
+laser "addcon pno1=27 pno2=28"
+laser "addcon pno1=28 pno2=27"
+
+laser "addcon pno1=25 pno2=29"
+laser "addcon pno1=29 pno2=25"
+
+laser "addcon pno1=29 pno2=30"
+laser "addcon pno1=30 pno2=29"
+
+laser "addcon pno1=30 pno2=31"
+laser "addcon pno1=31 pno2=30"
+
+laser "addcon pno1=22 pno2=23"
+laser "addcon pno1=23 pno2=22"
+
+laser "addcon pno1=10 pno2=23"
+laser "addcon pno1=23 pno2=10"
+
+% calculate the cost
+laser "calculatecost"
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%ADDING LINES%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+laser "addline startx=0 starty=0 endx=1.8 endy=0 name='bottom left'"
+laser "addline startx=2.2 starty=0 endx=4.0 endy=0 name='ottom right'"
+laser "addline startx=0 starty=5.0 endx=1.8 endy=0 name='top left'"
+laser "addline startx=2.2 starty=5.0 endx=4.0 endy=5.0 name='top  right'"
+laser "addline startx=0 starty=0 endx=0 endy=1.8 name='left down'"
+laser "addline startx=0 starty=3.2 endx=0 endy=5 name='left up'"
+laser "addline startx=4 starty=0 endx=4 endy=1.8 name='right down'"
+laser "addline startx=4 starty=3.2 endx=4 endy=5 name='right up'"
+laser "addline startx=0.9 starty=3.1 endx=1.7 endy=3.1 name='maze bottom left'"
+laser "addline startx=2.3 starty=3.1 endx=3.1 endy=3.1 name='maze bottom right'"
+laser "addline startx=1.7 starty=2.5 endx=1.7 endy=3.1 name='maze left down'"
+laser "addline startx=0.9 starty=3.1 endx=0.9 endy=4.3 name='maze left up'"
+laser "addline startx=2.3 starty=2.5 endx=2.3 endy=3.1 name='maze right down'"
+laser "addline startx=3.1 starty=3.1 endx=3.1 endy=4.3 name='maze right up'"
+laser "addline startx=1.5 starty=3.7 endx=2.5 endy=3.7 name='maze middle horizontal'"
+laser "addline startx=2.0 starty=3.7 endx=2.0 endy=4.3 name='maze middle vertical'"
+laser "addline startx=0.9 starty=4.3 endx=3.1 endy=4.3 name='maze top'"
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%SET UP%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+% start pose and covariance
+laser "setinitpose x=xlaser y=0 th=0"
+laser "setinitcov Cx=0.01 Cy=0.01 Cth=0.01"
+
+set "$odox" 0.25
+set "$odoy" 0.25
+set "$odoth" 0
+
+% set localizer
+laser "LOCALIZE silent"
+laser "push t='0.5' cmd='localize'"
+
+%-------------------
+% GUIDEMARKS
+%-------------------
+array "gmkx" 14
+array "gmky" 14
+array "gmkth" 14
+
+gmkx[1] = -0.01
+gmkx[2] = 0
+gmkx[3] = 4.0
+gmkx[4] = 4.01
+gmkx[5] = -0.01
+gmkx[6] = 0.0
+gmkx[7] = 4.0
+gmkx[8] = 4.01
+gmkx[9] = 0.0
+gmkx[10] = 4.0
+gmkx[11] = 0.5
+gmkx[12] = 3.5
+gmkx[13] = 1.99
+gmkx[14] = 2.01
+
+gmky[1] = 1.5
+gmky[2] = 1.5
+gmky[3] = 1.5
+gmky[4] = 1.5
+gmky[5] = 3.5
+gmky[6] = 3.5
+gmky[7] = 3.5
+gmky[8] = 3.5
+gmky[9] = 4.5
+gmky[10] = 4.5
+gmky[11] = 5.0
+gmky[12] = 5.0
+gmky[13] = 4.0
+gmky[14] = 4.0
+
+gmkth[1] = 3.14
+gmkth[2] = 0
+gmkth[3] = 3.14
+gmkth[4] = 0
+gmkth[5] = 3.14
+gmkth[6] = 0
+gmkth[7] = 3.14
+gmkth[8] = 0
+gmkth[9] = 0
+gmkth[10] = 3.14
+gmkth[11] = -1.57
+gmkth[12] = -1.57
+gmkth[13] = 3.14
+gmkth[14] = 0
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%RUN MISSION%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+label "start"
+
+switch(mission)
+	case 1
+		goto "mission1"
+	case 2
+		goto "mission2"
+	case 3
+		goto "mission3"
+endswitch
+
+goto "missionerror"
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%MISSION 1%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+label "mission1"
+
+call "init"
+call "drive"
+call "gm"
+
+if (gmval != 14) "mission1"
+
+goto "complete"
+
+label "init"
+
+%current pose
+xc = $odox
+yc = $odoy
+thc = $odoth
+
+%first guidemark pose
+xg = gmkx[gmkno]
+yg = gmky[gmkno]
+thg = gmkth[gmkno]
+
+stringcat "findroute  startx="xc"  starty="yc" endx="xg" endy="yg""
+laser "$string"
+wait 1
+N = $l4
+
+
+return
+
+
+
+%-------------------------%
+%          Drive          %
+%-------------------------%
+
+label "drive"
+
+stringcat "getpoint p=" N""
+laser "$string"
+wait 1
+
+x = $l5
+y = $l6
+th = $l7
+
+eval x
+eval y
+eval th
+
+invtrans $l0 $l1 $l2 $odox $odoy $odoth
+
+angle = th-$res2
+angle = normalizeanglerad(angle)
+ignoreobstacles
+eval angle
+wait 0.5
+turn angle "rad" @v 0.3 :($cmdtime>3)
+
+ignoreobstacles
+wait 0.5
+drivew x y th "rad" @v 0.8 :($targetdist<0.05) 
+stop
+wait 1
+
+
+N = N - 1
+if (N>-1) "drive"
+
+
+invtrans $l0 $l1 $l2 $odox $odoy $odoth
+
+xx = xg-$res0
+yy = yg-$res1
+
+angle = atan2(yy,xx)-$res2
+
+wait 1
+
+angle = normalizeanglerad(angle)
+ignoreobstacles
+turn angle "rad" @v 0.3 :($cmdtime>3)
+wait 0.5
+
+
+return
+
+
+
+%------------------------%
+% DOING EVALUATION OF GM %
+%------------------------%
+
+label "gm"
+call "readgm"
+if (gmval < 1) "bad"
+if (gmval >= 1) "good"
+
+label "bad"
+
+wait 1
+gmval = $fiducialid
+
+if (gmval >= 1) "good"
+turn 10 @v 0.2 
+wait 1
+call "readgm"
+if (gmval >= 1) "good"
+turn -20 @v 0.2 
+wait 1
+call "readgm"
+if (gmval >= 1) "good"
+return
+
+label "good"
+gmkno = gmval
+stringcat "Guidemark no. " "gmkno""
+return
+
+
+
+%-------------------------%
+% READ GUIDEMARK FUNCTION %
+%-------------------------%
+
+label "readgm"
+tries = 0
+label "retry"
+wait 2 :($fiducialid)
+eval $fiducialid
+gmval = $fiducialid
+wait 2
+tries = tries + 1
+
+if (gmval == 98) "complete"
+
+if (tries < 2 | gmval < 1) "retry"
+
+return
+
+label "complete"
+mission = mission + 1
+goto "start"
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%MISSION 2%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% This mission finds the object on the loose
+label "mission2"
+
+n=1 %iterator for switch case
+
+% (x,y) of box with object on the loose
+midx = 2
+midy = 1.5
+
+% Go to reading points
+label "objectfinding"
+
+
+% Read from points 22 -> 21 -> 3 -> 2 -> 1 -> 14 -> 13 -> 12 -> 11 -> 10 -> 23
+switch(n)
+	case 1:
+		x=2.0
+		y=2.25
+	case 2:
+		x=1.25
+		y=2.35
+	case 3:
+		x=0.5
+		y=2.35
+	case 4:
+		x=0.5
+		y=1.5
+	case 5:
+		x=0.5
+		y=0.5
+	case 6:
+		x=1.5
+		y=0.5
+	case 7:
+		x=2.5
+		y=0.5
+	case 8:
+		x=3.5
+		y=0.5
+	case 9:
+		x=3.5
+		y=1.5
+	case 10:
+		x=3.5
+		y=2.35
+	case 11:
+		x=2.75
+		y=2.35
+endswitch
+
+
+xc = $odox
+yc = $odoy
+thc = $odoth	
+
+
+stringcat "findroute  startx="xc"  starty="yc" endx="x" endy="y""
+laser "$string"
+wait 1
+
+K = $l4
+
+
+label "drivearound"
+stringcat "getpoint p=" K""
+laser "$string"
+wait 1
+
+x = $l5
+y = $l6
+
+th = $l7
+
+eval x
+eval y
+eval th
+
+invtrans $l0 $l1 $l2 $odox $odoy $odoth
+
+angle = th-$res2
+angle = normalizeanglerad(angle)
+eval angle
+ignoreobstacles
+turn angle "rad" @v 0.3 :($cmdtime>3)
+
+ignoreobstacles
+wait 0.5
+drivew x y th "rad" @v 0.5 :($targetdist<0.05) 
+stop
+wait 0.5
+
+K=K-1
+
+if (K>-1) "drivearound"
+
+
+% Turning towards middle of box on the loose
+
+posx = midx - $odox
+posy = midy - $odoy
+
+midangle = atan2(posy, posx) - $odoth
+midangle = normalizeanglerad(midangle)
+
+ignoreobstacles
+turn midangle "rad" @v 0.2 :($cmdtime>3)
+wait 2
+stringcat "zoneobst detect x="$odox" y="$odoy" th="$odoth""
+laser "$string"
+wait 2
+
+n=n+1
+
+if (n!=12) "objectfinding"
+
+wait 1
+
+%determine object
+laser "zoneobst determine"
+wait 3
+
+goto "finish"
+
+mission = mission + 1
+goto "start"
+
+
+label "findobject"
+posx = midx - $odox
+posy = midy - $odoy
+
+midangle = atan2(posy, posx) - $odoth
+midangle = normalizeanglerad(midangle)
+
+ignoreobstacles
+turn midangle "rad" @v 0.2
+wait 2
+
+stringcat "zoneobst findobject x="$odox" y="$odoy" th="$odoth""
+laser "$string"
+
+boxx = $l0
+boxy = $l1
+
+eval boxx
+eval boxy
+
+return
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%MISSION 3%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% drive to goal
+
+label "mission3"
+
+startx=0.25
+starty=0.25
+
+xc = $odox
+yc = $odoy
+stringcat "findroute  startx="xc"  starty="yc" endx="startx" endy="starty""
+laser "$string"
+wait 1
+N = $l4
+
+label "driveHome"
+
+stringcat "getpoint p=" N""
+laser "$string"
+wait 1
+
+x = $l5
+y = $l6
+th = $l7
+
+eval x
+eval y
+eval th
+
+invtrans $l0 $l1 $l2 $odox $odoy $odoth
+
+angle = th-$res2
+angle = normalizeanglerad(angle)
+ignoreobstacles
+eval angle
+wait 1
+turn angle "rad" @v 0.3 :($cmdtime>3)
+
+ignoreobstacles
+wait 1
+drivew x y th "rad" @v 0.8 :($targetdist<0.05) 
+stop
+wait 1
+
+N = N - 1
+
+if (N>-1) "driveHome"
+
+turn 90
+fwd -0.25
+turn 90
+fwd -0.25
+
+goto "finish"
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%FINISH%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+label "missionerror"
+%NO MISSION NUMBER DETECTED
+
+label "finish"
+stop
+
+% closing logging
+laser "scanset logclose"
+laser "odopose log=false"
+
+% DRIVE FINISHED

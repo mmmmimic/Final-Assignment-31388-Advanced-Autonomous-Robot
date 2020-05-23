@@ -1,0 +1,21 @@
+%% group 16
+%% 31388 Advanced Autonomous Robots
+
+% draw the maze in ulmsserver
+laser "addline startx=0 starty=0 endx=1.8 endy=0 name='bottom left'"
+laser "addline startx=2.2 starty=0 endx=4.0 endy=0 name='bottom right'"
+laser "addline startx=0 starty=5.0 endx=1.8 endy=0 name='top left'"
+laser "addline startx=2.2 starty=5.0 endx=4.0 endy=5.0 name='top  right'"
+laser "addline startx=0 starty=0 endx=0 endy=1.8 name='left down'"
+laser "addline startx=0 starty=3.2 endx=0 endy=5 name='left up'"
+laser "addline startx=4 starty=0 endx=4 endy=1.8 name='right down'"
+laser "addline startx=4 starty=3.2 endx=4 endy=5 name='right up'"
+laser "addline startx=0.9 starty=3.1 endx=1.7 endy=3.1 name='maze bottom left'"
+laser "addline startx=2.3 starty=3.1 endx=3.1 endy=3.1 name='maze bottom right'"
+laser "addline startx=1.7 starty=2.5 endx=1.7 endy=3.1 name='maze left down'"
+laser "addline startx=0.9 starty=3.1 endx=0.9 endy=4.3 name='maze left up'"
+laser "addline startx=2.3 starty=2.5 endx=2.3 endy=3.1 name='maze right down'"
+laser "addline startx=3.1 starty=3.1 endx=3.1 endy=4.3 name='maze right up'"
+laser "addline startx=1.5 starty=3.7 endx=2.5 endy=3.7 name='maze middle horizontal'"
+laser "addline startx=2.0 starty=3.7 endx=2.0 endy=4.3 name='maze middle vertical'"
+laser "addline startx=0.9 starty=4.3 endx=3.1 endy=4.3 name='maze top'"

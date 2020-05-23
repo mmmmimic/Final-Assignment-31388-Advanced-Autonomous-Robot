@@ -1,0 +1,42 @@
+%% feedback control
+xTw = -0.5
+yTw = -0.5
+thTW = -180/180*3.1415926535897932384626
+kRho = 0.3
+kAlpha = 0.8
+kBeta = -0.15
+epoch = 0
+invtrans(xTw,yTw,thTw,$odox,$odoy,$odoth)
+
+log "$odox,$odoy,$odoth"
+label "loop"
+epoch = epoch+1
+
+xT = cos(thTw)*($odox-xTw)+sin(thTw)*($odoy-yTw)
+yT = -sin(thTw)*($odox-xTw)+cos(thTw)*($odoy-yTw)
+thT = $odoth-thTw
+dx = -xT
+dy = -yT
+rho = sqrt(dx*dx+dy*dy)
+alpha = -thT+atan2(dy,dx)
+beta = -thT-alpha
+alpha = normalizeanglerad(alpha)
+beta = normalizeanglerad(beta)
+
+v = kRho*rho
+if(v<0.05) "velocity"
+label "continu"
+w = kAlpha*alpha+kBeta*beta
+l = 0.26 %measured
+wr = (2*v-w*l)/2
+wl = (2*v+w*l)/2
+motorcmds wl wr
+if(rho>0.01) "loop"
+
+if(abs(thT)>0.02) "loop"
+if(epoch==10000) "stop"
+label "stop"
+stop
+label "velocity"
+v = v
+goto "continu"

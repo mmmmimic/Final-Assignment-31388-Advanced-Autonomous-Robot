@@ -1,0 +1,18 @@
+0.0	0.0	1.8	0.0	bottom left
+2.2	0.0	4.0	0.0	bottom right
+0.0	5.0	1.8	5.0	top left
+2.2	5.0	4.0	5.0	top right
+0.0	0.0	0.0	1.8	left down
+0.0	3.2	0.0	5.0	left up
+4.0	0.0	4.0	1.8	right down
+4.0	3.2	4.0	5.0	right up
+0.9	3.1	1.7	3.1	maze bottom left
+2.3	3.1	3.1	3.1	maze bottom right
+1.7	2.5	1.7	3.1	maze left down
+0.9	3.1	0.9	4.3	maze left up
+2.3	2.5	2.3	3.1	maze right down
+3.1	3.1	3.1	4.3	maze right up
+1.5	3.7	2.5	3.7	maze middle horizontal
+2.0	3.7	2.0	4.3	maze middle vertical
+0.9	4.3	3.1	4.3	maze top
+

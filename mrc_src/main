@@ -1,0 +1,234 @@
+%% group 16
+%% 31388 Advanced Autonomous Robots
+
+%%%%%%%%%%%%%%%%CONSTANTS%%%%%%%%%%%%%%%%%%%%%%%
+pi = 3.1415926535
+% origin
+xOrig = 0.25
+yOrig = 0.45
+% distance from the expected robot position to the guidemark
+dist = 0.25
+% distance from the nearest node to the guidemark
+nodeDist = 0.15
+% robot length
+length  = 0.35
+% the first guidemark number
+gmno = 11
+% task number
+%% - 1: subtask1, follow the guidemarks
+%% - 2: subtask2, recognize unknown object
+%% - 0: finish the full task, subtask1->subtask2
+task = 1
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% prior guidemark information
+array "gmx" 15
+array "gmy" 15
+array "gmth" 15
+
+% x coordinates
+gmx[1]=0
+gmx[2]=0
+gmx[3]=4
+gmx[4]=4
+gmx[5]=0
+gmx[6]=0
+gmx[7]=4
+gmx[8]=4
+gmx[9]=0
+gmx[10]=4
+gmx[11]=0.4
+gmx[12]=3.6
+gmx[13]=2
+gmx[14]=2
+
+% y coordinates
+gmy[1]=1.5
+gmy[2]=1.5
+gmy[3]=1.5
+gmy[4]=1.5
+gmy[5]=3.5
+gmy[6]=3.5
+gmy[7]=3.5
+gmy[8]=3.5
+gmy[9]=4.7
+gmy[10]=4.7
+gmy[11]=5
+gmy[12]=5
+gmy[13]=4.0
+gmy[14]=4.0
+
+% theta
+gmth[1]=pi
+gmth[2]=0
+gmth[3]=pi
+gmth[4]=0
+gmth[5]=pi
+gmth[6]=0
+gmth[7]=pi
+gmth[8]=0
+gmth[9]=0
+gmth[10]=pi
+gmth[11]=-pi/2
+gmth[12]=-pi/2
+gmth[13]=pi
+gmth[14]=0
+%% get cost for graph planner
+laser "calculatecost"
+
+%% set initial odopose
+set "$odox" 0
+set "$odoy" 0
+set "$odoth" 0
+
+%% Kalman filter localization
+laser "localize"
+laser “push t='0.3' cmd='localize' “
+wait 1
+
+%%%%%%%%MAIN PROCESS%%%%%%%%%%
+%
+switch(task)
+call "subtask1"
+call "subtask2"
+call "backToOrig"
+goto "end"
+case 1
+call "subtask1"
+call "backToOrig"
+goto "end"
+case 2
+call "subtask2"
+call "backToOrig"
+goto "end"
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% function: subtask1
+% follow guidemarks
+label "subtask1"
+if(gmno<1) "backToOrig"
+% set a destination
+% if the guidemark is on the right side of a wall
+if(gmth[gmno]==0) "rightSide"
+% if the guidemark is on the left side of a wall
+if(gmth[gmno]==pi) "leftSide"
+xEnd = gmx[gmno]
+yEnd = gmy[gmno]-0.5
+label "top"
+thEnd = pi+gmth[gmno]
+eval xEnd
+eval yEnd
+eval thEnd
+% go to the next guidemark
+call "plan"
+% read the guidemark, update gmno
+call "look"
+if(gmno!=98) "subtask1"
+return
+label "rightSide"
+xEnd = gmx[gmno]+(nodeDist+length)
+yEnd = gmy[gmno]
+goto "top"
+label "leftSide"
+xEnd = gmx[gmno]-(nodeDist+length)
+yEnd = gmy[gmno]
+goto "top"
+
+% function: subtask2
+% recoggnize unknow objects
+label "subtask2"
+return
+
+% function: update
+% get the robot position in world coordinates
+label "update"
+invtrans $l0 $l1 $l2 $odox $odoy $odoth
+wait 1 
+xCurr = $res0
+yCurr = $res1
+thCurr = $res2
+eval xCurr
+eval yCurr
+eval thCurr
+return
+
+% function: go
+% drive the robot to the target pose
+label "go"
+call "update"
+eval xTar
+eval yTar
+eval thTar
+rotAng = atan2(yTar-yCurr,xTar-xCurr)-thCurr
+rotAng = normalizeanglerad(rotAng)
+wait 0.5
+eval rotAng
+ignoreobstacles
+turn rotAng "rad" @v 0.1 :($cmdtime>5)|($irdistfrontmiddle<=0.05) 
+wait 0.5
+ignoreobstacles
+drivew xTar yTar thTar "rad" @v 0.5 :($targetdist<0.01)|($cmdtime>10)|($irdistfrontmiddle<=0.05)
+stop
+call "update"
+% correct orientation
+rotAng = thTar-thCurr
+rotAng = normalizeanglerad(rotAng)
+wait 0.5
+ignoreobstacles
+turn rotAng "rad" @v 0.1 :($cmdtime>5)|($irdistfrontmiddle<=0.05)  
+wait 0.5
+return
+
+% function: plan
+% drive the robot to a given position in a maze, using graph planner 
+label "plan"
+call "update"
+stringcat "findroute startx="xCurr"starty="yCurr"endx="xEnd"endy="yEnd
+laser "$string"
+wait 1
+pno = $l4
+label "loop"
+pno = pno-1
+stringcat "getpoint p="pno
+laser "$string"
+wait 0.5
+xTar = $l5
+yTar = $l6
+thTar = $l7
+% remove the verbose pose
+if((xTar==xOrig)&(yTar==yOrig)) "loop"
+eval pno
+call "go"
+wait 0.5
+if(pno>0) "loop"
+% drive the robot to head at the target
+xTar = xEnd
+yTar = yEnd
+thTar = thEnd
+call "go"
+wait 0.5
+ignoreobstacles
+drive @v 0.1 :($irdistfrontmiddle<=dist)
+wait 0.5
+return
+
+% function: look
+% return guidemarkNumber 
+label "look"
+get "guidemark" :($fiducialid>=1)|($cmdtime>30)
+eval $guidemarkok
+eval $fiducialid
+gmno = $guidemarkok
+eval $gmkx
+eval $gmky
+eval $gmkz
+return
+
+% function: backToOrig
+% drive the robot back to the start square
+label "backToOrig"
+return
+
+
+label "end"
+stop

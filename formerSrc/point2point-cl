@@ -1,0 +1,14 @@
+dx=0.5
+dy=0
+dtheta=0
+log "$odox" "$odoy" "$odoth"
+angle = atan2(dy,dx)
+wait 0.5
+dis = sqrt(dx*dx+dy*dy)
+angle = agngle/3.1415926535932384626*180
+turn angle
+fwd dis
+stop
+angle = -angle
+turn angle
+turn dtheta
