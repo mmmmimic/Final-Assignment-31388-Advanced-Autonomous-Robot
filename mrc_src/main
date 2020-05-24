@@ -7,13 +7,13 @@ pi = 3.1415926535
 xOrig = 0.25
 yOrig = 0.45
 % distance from the expected robot position to the guidemark
-dist = 0.25
+dist = 0.4
 % distance from the nearest node to the guidemark
 nodeDist = 0.15
 % robot length
-length  = 0.35
+length  = 0.25
 % the first guidemark number
-gmno = 11
+gmno = 4
 % task number
 %% - 1: subtask1, follow the guidemarks
 %% - 2: subtask2, recognize unknown object
@@ -164,19 +164,20 @@ rotAng = normalizeanglerad(rotAng)
 wait 0.5
 eval rotAng
 ignoreobstacles
-turn rotAng "rad" @v 0.1 :($cmdtime>5)|($irdistfrontmiddle<=0.05) 
-wait 0.5
+turn rotAng "rad" @v 0.1 :($cmdtime>5)|($irdistfrontmiddle<=nodeDist)| ($irdistfrontleft<=0.05) | ($irdistfrontright<=0.05)  
+wait 1.5
 ignoreobstacles
-drivew xTar yTar thTar "rad" @v 0.5 :($targetdist<0.01)|($cmdtime>10)|($irdistfrontmiddle<=0.05)
+drivew xTar yTar thTar "rad" @v 0.3 :($targetdist<0.01)|($cmdtime>10)|($irdistfrontmiddle<=nodeDist)
 stop
+wait 1
 call "update"
 % correct orientation
 rotAng = thTar-thCurr
 rotAng = normalizeanglerad(rotAng)
 wait 0.5
 ignoreobstacles
-turn rotAng "rad" @v 0.1 :($cmdtime>5)|($irdistfrontmiddle<=0.05)  
-wait 0.5
+turn rotAng "rad" @v 0.1 :($cmdtime>5)|($irdistfrontmiddle<=nodeDist)| ($irdistfrontleft<=0.05) | ($irdistfrontright<=0.05)   
+wait 1
 return
 
 % function: plan
@@ -199,29 +200,35 @@ thTar = $l7
 if((xTar==xOrig)&(yTar==yOrig)) "loop"
 eval pno
 call "go"
-wait 0.5
+wait 2
 if(pno>0) "loop"
 % drive the robot to head at the target
 xTar = xEnd
 yTar = yEnd
 thTar = thEnd
 call "go"
-wait 0.5
+wait 1
+ignoreobstacles
+fwd -0.3 @v 0.1
+stop
 ignoreobstacles
 drive @v 0.1 :($irdistfrontmiddle<=dist)
+stop
 wait 0.5
 return
 
 % function: look
 % return guidemarkNumber 
 label "look"
-get "guidemark" :($fiducialid>=1)|($cmdtime>30)
-eval $guidemarkok
+wait 3 : ($fiducialid>0)
 eval $fiducialid
-gmno = $guidemarkok
+eval $guidemarkok
+gmno = $fiducialid
+eval gmno
 eval $gmkx
 eval $gmky
 eval $gmkz
+goto "look"
 return
 
 % function: backToOrig

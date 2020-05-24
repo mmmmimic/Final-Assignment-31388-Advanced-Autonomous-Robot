@@ -33,6 +33,7 @@ echo $flag
 	  ## clean logg files
           rm -r *.logg
           ## kill all terminal processes
+	  gnome-terminal -t "close client" -x killall -9 qclient
           gnome-terminal -t "clear all" -x killall -9 bash  
           break
         fi

@@ -2,6 +2,7 @@ drive @v 0.2 :($irdistfrontleft<0.45)|($irdistfrontmiddle<0.45)|($irdistfrontrig
 stop
 wait 3
 switch ($fiducialid)
+eval $fiducialid
 stop
 case 1 %%%%%
 turn 180 @v 0.2
