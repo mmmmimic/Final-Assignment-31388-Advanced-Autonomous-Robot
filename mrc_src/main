@@ -6,14 +6,14 @@ pi = 3.1415926535
 % origin
 xOrig = 0.25
 yOrig = 0.45
-% distance from the expected robot position to the guidemark
-dist = 0.35
 % distance from the nearest node to the guidemark
-nodeDist = 0.25
+nodeDist = 0.15
 % robot length
-length  = 0.25
+length  = 0.35
+% distance from the expected robot position to the guidemark
+dist = 0.5-0.26
 % the first guidemark number
-gmno = 14
+gmno = 13
 % task number
 %% - 1: subtask1, follow the guidemarks
 %% - 2: subtask2, recognize unknown object
@@ -170,11 +170,11 @@ rotAng = atan2(yTar-yCurr,xTar-xCurr)-thCurr
 rotAng = normalizeanglerad(rotAng)
 wait 0.5
 eval rotAng
-turn rotAng "rad" @v 0.1 :($cmdtime>5)|($irdistfrontmiddle<=nodeDist)| ($irdistfrontleft<=0.05) | ($irdistfrontright<=0.05)  
+turn rotAng "rad" @v 0.1 :($cmdtime>5)|($irdistfrontmiddle<=dist)| ($irdistfrontleft<=0.05) | ($irdistfrontright<=0.05)  
 stop
 wait 2
 ignoreobstacles
-drivew xTar yTar thTar "rad" @v 0.3 :($targetdist<0.01)|($cmdtime>10)|($irdistfrontmiddle<=nodeDist)
+drivew xTar yTar thTar "rad" @v 0.3 :($targetdist<0.05)|($cmdtime>10)|($irdistfrontmiddle<=dist)
 stop
 wait 1
 call "update"
@@ -183,8 +183,8 @@ rotAng = thTar-thCurr
 rotAng = normalizeanglerad(rotAng)
 stop
 wait 0.5
-turn rotAng "rad" @v 0.1 :($cmdtime>5)|($irdistfrontmiddle<=nodeDist)| ($irdistfrontleft<=0.05) | ($irdistfrontright<=0.05)   
-wait 1
+turn rotAng "rad" @v 0.1 :($cmdtime>5)|($irdistfrontmiddle<=dist)| ($irdistfrontleft<=0.05) | ($irdistfrontright<=0.05)   
+stop
 return
 
 % function: plan
@@ -203,7 +203,7 @@ wait 0.5
 xTar = $l5
 yTar = $l6
 thTar = $l7
-if((xTar==xOrig)&(yTar==yOrig)&(pno>1)) "loop"
+if((xTar==xOrig)&(yTar==yOrig)&(pno>0)) "loop"
 call "go"
 wait 2
 if(pno>0) "loop"
@@ -212,6 +212,8 @@ xTar = xEnd
 yTar = yEnd
 thTar = thEnd
 call "go"
+%wait 1
+%fwd -0.2 @v 0.1:($irdistfrontmiddle<=dist)
 return
 
 % function: look
@@ -252,12 +254,25 @@ return
 % function: backToOrig
 % drive the robot back to the start square
 label "backToOrig"
-fwd -0.45 @v 0.1
+fwd -0.32 @v 0.1
 wait 1
-xEnd = xOrig
-yEnd = yOrig-0.1
+xEnd = 2
+yEnd = 0.5
 thEnd = 0
 call "plan"
+wait 1
+% to make sure it inside the square
+call "update"
+rotAng = -thCurr
+turn  rotAng "rad" @v 0.1:($irdistfrontleft<=0.05) | ($irdistfrontright<=0.05) 
+stop
+wait 0.5
+fwd -1.85 @v 0.1
+turn -90
+ignoreobstacles
+fwd 0.05 @v 0.1
+turn 90
+stop
 wait 1
 laser "scanset logclose"
 laser "odopose log=false"
