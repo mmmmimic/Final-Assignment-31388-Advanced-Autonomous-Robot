@@ -7,13 +7,13 @@ pi = 3.1415926535
 xOrig = 0.25
 yOrig = 0.45
 % distance from the expected robot position to the guidemark
-dist = 0.4
+dist = 0.35
 % distance from the nearest node to the guidemark
-nodeDist = 0.15
+nodeDist = 0.25
 % robot length
 length  = 0.25
 % the first guidemark number
-gmno = 4
+gmno = 14
 % task number
 %% - 1: subtask1, follow the guidemarks
 %% - 2: subtask2, recognize unknown object
@@ -86,6 +86,11 @@ laser "localize"
 laser “push t='0.3' cmd='localize' “
 wait 1
 
+%% log
+laser "scanset logopen"
+laser "scanset log=1"
+laser "odopose log=true"
+
 %%%%%%%%MAIN PROCESS%%%%%%%%%%
 %
 switch(task)
@@ -95,6 +100,7 @@ call "backToOrig"
 goto "end"
 case 1
 call "subtask1"
+wait 5
 call "backToOrig"
 goto "end"
 case 2
@@ -123,6 +129,7 @@ eval thEnd
 call "plan"
 % read the guidemark, update gmno
 call "look"
+wait 1
 if(gmno!=98) "subtask1"
 return
 label "rightSide"
@@ -163,9 +170,9 @@ rotAng = atan2(yTar-yCurr,xTar-xCurr)-thCurr
 rotAng = normalizeanglerad(rotAng)
 wait 0.5
 eval rotAng
-ignoreobstacles
 turn rotAng "rad" @v 0.1 :($cmdtime>5)|($irdistfrontmiddle<=nodeDist)| ($irdistfrontleft<=0.05) | ($irdistfrontright<=0.05)  
-wait 1.5
+stop
+wait 2
 ignoreobstacles
 drivew xTar yTar thTar "rad" @v 0.3 :($targetdist<0.01)|($cmdtime>10)|($irdistfrontmiddle<=nodeDist)
 stop
@@ -174,8 +181,8 @@ call "update"
 % correct orientation
 rotAng = thTar-thCurr
 rotAng = normalizeanglerad(rotAng)
+stop
 wait 0.5
-ignoreobstacles
 turn rotAng "rad" @v 0.1 :($cmdtime>5)|($irdistfrontmiddle<=nodeDist)| ($irdistfrontleft<=0.05) | ($irdistfrontright<=0.05)   
 wait 1
 return
@@ -196,9 +203,7 @@ wait 0.5
 xTar = $l5
 yTar = $l6
 thTar = $l7
-% remove the verbose pose
-if((xTar==xOrig)&(yTar==yOrig)) "loop"
-eval pno
+if((xTar==xOrig)&(yTar==yOrig)&(pno>1)) "loop"
 call "go"
 wait 2
 if(pno>0) "loop"
@@ -207,33 +212,55 @@ xTar = xEnd
 yTar = yEnd
 thTar = thEnd
 call "go"
-wait 1
-ignoreobstacles
-fwd -0.3 @v 0.1
-stop
-ignoreobstacles
-drive @v 0.1 :($irdistfrontmiddle<=dist)
-stop
-wait 0.5
 return
 
 % function: look
 % return guidemarkNumber 
 label "look"
+counter = 0
+label "scan"
+switch(counter)
 wait 3 : ($fiducialid>0)
-eval $fiducialid
-eval $guidemarkok
 gmno = $fiducialid
 eval gmno
-eval $gmkx
-eval $gmky
-eval $gmkz
-goto "look"
+goto "hasGotcha"
+case 1
+turn 10
+wait 3 : ($fiducialid>0)
+if(gmno==$fiducialid) "next"
+gmno = $fiducialid
+eval gmno
+"hasGotcha"
+case 2
+turn -20
+wait 3 : ($fiducialid>0)
+gmno = $fiducialid
+eval gmno
+label "hasGotcha"
+counter = counter+1
+if(counter>2) "next"
+if(gmno<0) "scan"
+return
+label "next"
+gmno = gmno+1
+if(gmno>14) "overflow"
+return
+label "overflow"
+gmno = 14
 return
 
 % function: backToOrig
 % drive the robot back to the start square
 label "backToOrig"
+fwd -0.45 @v 0.1
+wait 1
+xEnd = xOrig
+yEnd = yOrig-0.1
+thEnd = 0
+call "plan"
+wait 1
+laser "scanset logclose"
+laser "odopose log=false"
 return
 
 

@@ -1,4 +1,9 @@
 #!usr/bin/bash
+# install gnome-terminal
+if ! [ -x "$(command -v gnome-terminal)" ]; then
+  sudo apt-get install gnome-terminal
+  sleep 1
+fi
 # terminal 1: laser server
 gnome-terminal -t "laser server" -x bash -c "cd /home/smr/sim/bash_src/;
 sh laser.sh;exec bash;"
