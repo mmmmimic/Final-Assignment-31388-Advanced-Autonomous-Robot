@@ -14,7 +14,7 @@
 6. Find the object with RANSAC, coordinate transformation
 
 ## Process
-[x] follow guidemark
+[x] follow guidemark    
 [ ] object detection
 - [ ] spawn objects
 - [ ] detect objects
