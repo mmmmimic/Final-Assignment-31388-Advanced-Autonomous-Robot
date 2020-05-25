@@ -12,3 +12,9 @@
 - No: step 3
 5. Go around the green square: (1,1), (1,2), (3,1), (3,2)
 6. Find the object with RANSAC, coordinate transformation
+
+## Process
+[x] follow guidemark
+[ ] object detection
+- [ ] spawn objects
+- [ ] detect objects
