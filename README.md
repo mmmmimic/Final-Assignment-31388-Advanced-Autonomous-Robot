@@ -1,4 +1,8 @@
 # Final Assignment - 31388 Advanced Autonomous Robot
+## Run the script  
+bash main.sh
+## Configuration  
+- see in objConfig.yaml
 ![avatar](maze.jpg)
 ## Language
 - SMR-CL
@@ -14,7 +18,7 @@
 6. Find the object with RANSAC, coordinate transformation
 
 ## Process
-[ x ] follow guidemark    
+[x] follow guidemark    
 [ ] object detection
-- [ x ] spawn objects
+- [x] spawn objects
 - [ ] detect objects
