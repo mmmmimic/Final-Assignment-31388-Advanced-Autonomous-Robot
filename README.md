@@ -18,7 +18,7 @@ bash main.sh
 6. Find the object with RANSAC, coordinate transformation
 
 ## Process
-[x] follow guidemark    
-[ ] object detection
+- [x] follow guidemark    
 - [x] spawn objects
 - [ ] detect objects
+- [x] back to origin
