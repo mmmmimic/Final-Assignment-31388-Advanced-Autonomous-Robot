@@ -1,0 +1,8 @@
+# RANDOM: bool ,if spawn objects randomly
+RANDOM: True
+# INDEX: 1-4, assign the index of the object, only works when RANDOM=False
+# index 1: Rectangle, width=0.4, height=0.15 
+# index 2: Rectangle, width=0.3, height=0.2
+# index 3: Triangle, width=0.4, height=0.1
+# index 4: Triangle, width=0.3, height=0.15
+INDEX: 1

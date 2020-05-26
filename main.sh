@@ -1,9 +1,20 @@
 #!usr/bin/bash
 # install gnome-terminal
+if ! [ -x "$(command -v pip)" ]; then
+sudo apt install python-pip
+sleep 1
+pip install numpy
+pip install PyYAML
+sleep 1
+fi
 if ! [ -x "$(command -v gnome-terminal)" ]; then
+  sudo apt-get update
   sudo apt-get install gnome-terminal
   sleep 1
 fi
+# terminal 0: add object
+python spawnObjs.py
+sleep 1
 # terminal 1: laser server
 gnome-terminal -t "laser server" -x bash -c "cd /home/smr/sim/bash_src/;
 sh laser.sh;exec bash;"
@@ -21,7 +32,7 @@ gnome-terminal -t "mrc" -x bash -c "cd /home/smr/sim/bash_src/;
 sh mov.sh;exec bash;"
 sleep 1
 # terminate
-## print processes
+## show processes
 echo "processes"
 ps -ef | grep "bash" | grep -v grep | awk '{print $2}'
 ps
@@ -37,6 +48,17 @@ echo $flag
         then
 	  ## clean logg files
           rm -r *.logg
+	  ## restore config files
+          if [ -f 388project_temp ]; then
+	  rm -r 388project
+          mv 388project_temp 388project
+	  fi
+	  sleep 1
+          cd mrc_src
+	  if [ -f createWalls_temp ];then
+          rm -r createWalls
+          mv createWalls_temp createWalls
+          fi
           ## kill all terminal processes
 	  gnome-terminal -t "close client" -x killall -9 qclient
           gnome-terminal -t "clear all" -x killall -9 bash  
