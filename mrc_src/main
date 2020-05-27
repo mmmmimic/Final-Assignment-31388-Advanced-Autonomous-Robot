@@ -18,7 +18,7 @@ gmno = 13
 %% - 1: subtask1, follow the guidemarks
 %% - 2: subtask2, recognize unknown object
 %% - 0: finish the full task, subtask1->subtask2
-task = 1
+task = 2
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % prior guidemark information
@@ -76,6 +76,36 @@ gmth[14]=0
 %% get cost for graph planner
 laser "calculatecost"
 
+%% path for detecting the object
+array "dox" 8
+array "doy" 8
+array "doth" 8
+dox[1] = 0.5
+doy[1] = 1.5
+doth[1] = 0
+dox[2] = 1
+doy[2] = 2.5
+doth[2] = -pi/4
+dox[3] = 1.5
+doy[3] = 4
+doth[3] = 0
+dox[4] = 3
+doy[4] = 2.5
+doth[4] = -3*pi/4
+dox[5] = 3.5
+doy[5] = 1.5
+doth[5] = pi
+dox[6] = 3
+doy[6] = 0.5
+doth[6] = 3*pi/4
+dox[7] = 2
+doy[7] = 0.5
+doth[7] = pi/2
+dox[8] = 1
+doy[8] = 0.5
+doth[8] = pi/4
+
+
 %% set initial odopose
 set "$odox" 0
 set "$odoy" 0
@@ -105,7 +135,7 @@ call "backToOrig"
 goto "end"
 case 2
 call "subtask2"
-call "backToOrig"
+%call "backToOrig"
 goto "end"
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -144,7 +174,32 @@ goto "top"
 % function: subtask2
 % recoggnize unknow objects
 label "subtask2"
+counter = 1
+label "detectLoop"
+xEnd = dox[counter]
+yEnd = doy[counter]
+thEnd = doth[counter]
+wait 0.5
+call "plan"
+counter=counter+1
+if (counter==4) "spPoint"
+wait 1
+laser "zoneobst logOn"
+if (counter<9) "detectLoop"
 return
+label "spPoint"
+fwd -0.32 @v 0.1
+wait 1
+xEnd = 2
+yEnd = 3.4
+thEnd = -pi/2
+call "plan"
+fwd 1 @v 0.1 
+stop
+wait 1
+laser "zoneobst logOn"
+goto "detectLoop"
+
 
 % function: update
 % get the robot position in world coordinates
@@ -277,7 +332,6 @@ wait 1
 laser "scanset logclose"
 laser "odopose log=false"
 return
-
 
 label "end"
 stop

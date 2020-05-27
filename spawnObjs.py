@@ -30,10 +30,6 @@ def read_config(config_path):
         cfg = yaml.load(f.read(), Loader=yaml.FullLoader)
     return cfg or {}
 
-# initialize logfile
-if os.path.exists('./spawnLog.log'):
-    os.remove('./spawnLog.log')
-
 # create temp files for revision
 shutil.copy(PROJ_NAME, PROJ_NAME+'_temp')
 shutil.copy(MRC_NAME, MRC_NAME+'_temp')
@@ -136,7 +132,7 @@ class Trian(MyObj):
 
 def spawn():
     # read confiugrations
-    cfg = read_config('./objConfig.yaml')
+    cfg = read_config('./config/objConfig.yaml')
     RANDOM = cfg['RANDOM']
     INDEX = cfg['INDEX']
     shape_bin = ['Rectangle','Triangle']
@@ -149,12 +145,12 @@ def spawn():
         shape = INDEX//3
         idx = 1-INDEX%2
     if shape:
+        obj = Trian(BOUND, TRIAN_WIDTH[idx], TRIAN_HEIGHT[idx])
+    else:
         # rectangle
         obj = Rect(BOUND, RECT_WIDTH[idx], RECT_HEIGHT[idx])
-    else:
-        obj = Trian(BOUND, TRIAN_WIDTH[idx], TRIAN_HEIGHT[idx])
     # write log files
-    with open('./spawnLog.log', 'a+') as f:
+    with open('./spawnLog.log', 'w') as f:
         f.write('shape: '+shape_bin[shape]+'\tcenter: '+str(obj.origin.reshape((1,-1)))+'\twidth: '+str(obj.width)+'\theight: '+str(obj.height)+'\tangle: '+str(obj.angle))
 
 if __name__ == "__main__":
