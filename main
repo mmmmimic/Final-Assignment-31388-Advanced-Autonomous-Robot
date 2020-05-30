@@ -174,7 +174,6 @@ goto "top"
 % function: subtask2
 % recoggnize unknow objects
 label "subtask2"
-dist = 0.48-0.26
 gcounter = 1
 label "detectLoop"
 xEnd = dox[gcounter]
@@ -193,17 +192,15 @@ call "update"
 stringcat "zoneobst detect x="xCurr" y="yCurr" th="thCurr
 laser "$string"
 if (gcounter<9) "detectLoop"
-laser "zoneobst recog"
 return
 
 label "spPoint"
-fwd -0.3 @v 0.1
+fwd -0.32 @v 0.1
 wait 1
 xEnd = 2
 yEnd = 3.4
 thEnd = -pi/2
 call "plan"
-ignoreobstacles
 fwd 1 @v 0.1 
 stop
 wait 1

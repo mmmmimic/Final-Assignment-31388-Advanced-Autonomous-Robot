@@ -117,11 +117,9 @@ class Trian(MyObj):
     def makePoints(self):
         roi = (self.bound[0]+self.width, self.bound[1]+self.width, self.bound[2]-self.width, self.bound[3]-self.width)
         # rotating angle
-        angle = random.uniform(0, math.pi)
+        angle = random.uniform(-math.pi, math.pi)
         # center
         o = np.array([[random.uniform(roi[0], roi[2])], [random.uniform(roi[1], roi[3])]])
-        with open('./spawnLog.log', 'a+') as f:
-            f.write('center: '+str(o.reshape((1,-1)))+'\twidth: '+str(self.width)+'\theight: '+str(self.height)+'\tangle: '+str(angle))
         # right
         p1 = self.rotate([self.width, 0], angle)+o
         # upper
@@ -151,7 +149,7 @@ def spawn():
         obj = Rect(BOUND, RECT_WIDTH[idx], RECT_HEIGHT[idx])
     # write log files
     with open('./spawnLog.log', 'w') as f:
-        f.write('shape: '+shape_bin[shape]+'\tcenter: '+str(obj.origin.reshape((1,-1)))+'\twidth: '+str(obj.width)+'\theight: '+str(obj.height)+'\tangle: '+str(obj.angle))
+        f.write('shape: '+shape_bin[shape]+'\tcenter: '+str(obj.origin.reshape((1,-1)))+'\twidth: '+str(obj.width)+'\theight: '+str(obj.height)+'\tangle: '+str(obj.angle/math.pi*180)+'\n')
 
 if __name__ == "__main__":
     spawn()

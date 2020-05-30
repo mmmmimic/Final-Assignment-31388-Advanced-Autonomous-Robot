@@ -23,8 +23,8 @@ if ! [ ${PWD##*/} = "sim" ];then
 fi
 
 # initialize log files
-if [ -f laserlogs.log ]; then
-    rm -f laserlogs.log
+if [ -f detectResult.log ]; then
+    rm -f detectResult.log
 fi
 
 # add object
