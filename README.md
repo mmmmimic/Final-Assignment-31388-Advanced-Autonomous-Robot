@@ -20,5 +20,5 @@ bash main.sh
 ## Process
 - [x] follow guidemark    
 - [x] spawn objects
-- [ ] detect objects
+- [x] detect objects
 - [x] back to origin
