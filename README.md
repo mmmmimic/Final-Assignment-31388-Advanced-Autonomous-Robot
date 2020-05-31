@@ -6,7 +6,7 @@ bash main.sh
 ![avatar](maze.jpg)
 ## Language
 - SMR-CL
-- C
+- C++
 ## Process
 1. Start from a 60x60 square
 2. Go to the first guidemark given in advance
@@ -14,8 +14,9 @@ bash main.sh
 4. Is the guidemark number 98?  
 - Yes: step 5
 - No: step 3
-5. Go around the green square: (1,1), (1,2), (3,1), (3,2)
-6. Find the object with RANSAC, coordinate transformation
+5. Go around the green square
+6. Find the object information, including shape, centroid coordinates, orientation, width and height
+7. Go back to origin
 
 ## Process
 - [x] follow guidemark    
