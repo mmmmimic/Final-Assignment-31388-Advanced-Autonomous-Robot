@@ -149,7 +149,7 @@ def spawn():
         obj = Rect(BOUND, RECT_WIDTH[idx], RECT_HEIGHT[idx])
     # write log files
     with open('./spawnLog.log', 'w') as f:
-        f.write('shape: '+shape_bin[shape]+'\tcenter: '+str(obj.origin.reshape((1,-1)))+'\twidth: '+str(obj.width)+'\theight: '+str(obj.height)+'\tangle: '+str(obj.angle/math.pi*180)+'\n')
+        f.write('shape: '+shape_bin[shape]+'\tcenter: '+str(obj.origin.reshape((1,-1)))+'\twidth: '+str(obj.width)+'\theight: '+str(obj.height)+'\tangle: '+str(obj.angle)+'\n')
 
 if __name__ == "__main__":
     spawn()

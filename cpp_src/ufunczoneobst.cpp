@@ -248,20 +248,20 @@ bool UFunczoneobst::handleCommand(UServerInMsg * msg, void * extra)
       {
         angle1 = calcAngle(0,2);
         if(angle1<0)
-        {angle1 += 180;}
+        {angle1 += PI;}
         angle2 = calcAngle(1,3);
         if(angle2<0)
-        {angle2 += 180;}
+        {angle2 += PI;}
         angle = (angle1+angle2)/2;
       }
       if(calcDist(vex_x[0], vex_y[0], vex_x[3], vex_y[3]) == width)
       {
         angle1 = calcAngle(0,3);
         if(angle1<0)
-        {angle1 += 180;}
+        {angle1 += PI;}
         angle2 = calcAngle(1,2);
         if(angle2<0)
-        {angle2 += 180;}
+        {angle2 += PI;}
         angle = (angle1+angle2)/2;
       }
       cout<<"angle: "<<angle<<endl;
@@ -572,6 +572,6 @@ double UFunczoneobst::calcAngle(int idx1, int idx2)
 {
 double dx = vex_x[idx2] - vex_x[idx1];
 double dy = vex_y[idx2] - vex_y[idx1];
-double angle = atan2(dy,dx)*180/PI;
+double angle = atan2(dy,dx);
 return angle;
 }

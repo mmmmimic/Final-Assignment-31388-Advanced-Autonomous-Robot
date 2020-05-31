@@ -14,11 +14,10 @@ length  = 0.35
 dist = 0.5-0.26
 % the first guidemark number
 gmno = 13
-% task number
-%% - 1: subtask1, follow the guidemarks
-%% - 2: subtask2, recognize unknown object
-%% - 0: finish the full task, subtask1->subtask2
-task = 2
+% shift value
+xshift = 0
+yshift = 0
+thshift = 0
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % prior guidemark information
@@ -77,33 +76,30 @@ gmth[14]=0
 laser "calculatecost"
 
 %% path for detecting the object
-array "dox" 9
-array "doy" 9
-array "doth" 9
-dox[1] = 0.5
-doy[1] = 1.5
-doth[1] = 0
-dox[2] = 1
-doy[2] = 2.5
-doth[2] = -pi/4
-dox[3] = 1.5
-doy[3] = 4
-doth[3] = 0
-dox[4] = 3
-doy[4] = 2.5
-doth[4] = -3*pi/4
-dox[5] = 3.5
-doy[5] = 1.5
-doth[5] = pi
-dox[6] = 3
-doy[6] = 0.5
-doth[6] = 3*pi/4
-dox[7] = 2
-doy[7] = 0.5
-doth[7] = pi/2
-dox[8] = 1.01
-doy[8] = 0.5
-doth[8] = pi/4
+array "dox" 8
+array "doy" 8
+array "doth" 8
+dox[1] = 3
+doy[1] =2.5
+doth[1] = -3*pi/4
+dox[2] = 3.5
+doy[2] =1.5
+doth[2] = pi
+dox[3] = 3
+doy[3] = 0.5
+doth[3] = 3*pi/4
+dox[4] = 2
+doy[4] = 0.5
+doth[4] = pi/2
+dox[5] = 1.01
+doy[5] = 0.5
+doth[5] = pi/4
+dox[6] = 0.5
+doy[6] = 1.5
+doth[6] = 0
+dox[7] = 1
+doy[7] = 2.5
+doth[7] = -pi/4
 
 
 %% set initial odopose
@@ -123,21 +119,42 @@ laser "odopose log=true"
 
 %%%%%%%%MAIN PROCESS%%%%%%%%%%
 %
-switch(task)
+%% first follow guidemarks
+call "calibrate"
 call "subtask1"
+% now the robot is in guidemark 13 or 14
+fwd -0.32 @v 0.1
+wait 1
 call "subtask2"
 call "backToOrig"
-goto "end"
-case 1
-call "subtask1"
-wait 5
-call "backToOrig"
-goto "end"
-case 2
-call "subtask2"
-%call "backToOrig"
 goto "end"
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%function: calibrate
+% calculate x-shift and y-shift value of the laser
+label "calibrate"
+xEnd = 0.5
+yEnd = 1.5
+thEnd = pi/2
+call "plan"
+wait 0.5
+xCurr = $odox+xOrig
+yCurr = $odoy+yOrig
+thCurr = $odoth
+eval xCurr
+eval yCurr
+eval thCurr
+xshift = xEnd-xCurr
+yshift = yEnd-yCurr
+thShift = thEnd-thCurr
+xEnd = xEnd
+yEnd = yEnd
+thEnd = thEnd
+eval xshift
+eval yshift
+eval thshift
+call "plan"
+return
+
 
 % function: subtask1
 % follow guidemarks
@@ -174,7 +191,25 @@ goto "top"
 % function: subtask2
 % recoggnize unknow objects
 label "subtask2"
-dist = 0.48-0.26
+xEnd = 2
+yEnd = 3.3
+thEnd = -pi/2
+call "plan"
+wait 0.5
+ignoreobstacles
+fwd 1.1 @v 0.1 
+stop
+wait 1
+call "update"
+stringcat "zoneobst detect x="xCurr" y="yCurr" th="thCurr
+laser "$string"
+wait 1
+turn 90
+stop
+wait 0.5
+fwd 0.5 @v 0.1
+stop
+wait 0.5
 gcounter = 1
 label "detectLoop"
 xEnd = dox[gcounter]
@@ -187,31 +222,16 @@ eval thEnd
 wait 0.5
 call "plan"
 gcounter=gcounter+1
-if (gcounter==4) "spPoint"
 wait 1
 call "update"
+xCurr = xCurr-xshift
+yXurr = yCurr-yshift
+thCurr = thCurr-thshift
 stringcat "zoneobst detect x="xCurr" y="yCurr" th="thCurr
 laser "$string"
-if (gcounter<9) "detectLoop"
+if (gcounter<8) "detectLoop"
 laser "zoneobst recog"
 return
-
-label "spPoint"
-fwd -0.3 @v 0.1
-wait 1
-xEnd = 2
-yEnd = 3.4
-thEnd = -pi/2
-call "plan"
-ignoreobstacles
-fwd 1 @v 0.1 
-stop
-wait 1
-call "update"
-stringcat "zoneobst detect x="xCurr" y="yCurr" th="thCurr
-laser "$string"
-goto "detectLoop"
-
 
 % function: update
 % get the robot position in world coordinates
@@ -267,17 +287,17 @@ pno = pno-1
 stringcat "getpoint p="pno
 laser "$string"
 wait 0.5
-xTar = $l5
-yTar = $l6
-thTar = $l7
+xTar = $l5+xshift
+yTar = $l6+yshift
+thTar = $l7+thshift
 if((xTar==xOrig)&(yTar==yOrig)&(pno>0)) "loop"
 call "go"
 wait 2
 if(pno>0) "loop"
 % drive the robot to head at the target
-xTar = xEnd
-yTar = yEnd
-thTar = thEnd
+xTar = xEnd+xshift
+yTar = yEnd+yshift
+thTar = thEnd+thshift
 call "go"
 %wait 1
 %fwd -0.2 @v 0.1:($irdistfrontmiddle<=dist)
@@ -321,7 +341,6 @@ return
 % function: backToOrig
 % drive the robot back to the start square
 label "backToOrig"
-fwd -0.32 @v 0.1
 wait 1
 xEnd = 2
 yEnd = 0.5
@@ -334,11 +353,10 @@ rotAng = -thCurr
 turn  rotAng "rad" @v 0.1:($irdistfrontleft<=0.05) | ($irdistfrontright<=0.05) 
 stop
 wait 0.5
-fwd -1.85 @v 0.1
+fwd -1.72 @v 0.1
 turn -90
 ignoreobstacles
-fwd 0.05 @v 0.1
-turn 90
+fwd 0.12 @v 0.1
 stop
 wait 1
 laser "scanset logclose"

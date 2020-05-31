@@ -78,6 +78,8 @@ else
           rm -f createWalls
           mv createWalls_temp createWalls
         fi
+	cd ..
+	mv /*.log /logs/.
         ## kill all terminal processes
 	gnome-terminal -t "close client" -x killall -9 qclient
         gnome-terminal -t "clear all" -x killall -9 bash  
