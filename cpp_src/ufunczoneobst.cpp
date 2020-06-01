@@ -128,6 +128,12 @@ bool UFunczoneobst::handleCommand(UServerInMsg * msg, void * extra)
   }  
   else if(ifRecog)
   {
+    msg->tag.getAttValue("xshift", value, MVL);
+    double xshift = strtod(value, NULL);
+    msg->tag.getAttValue("yshift", value, MVL);
+    double yshift = strtod(value, NULL);
+    //msg->tag.getAttValue("thshift", value, MVL);
+    //double thshift = strtod(value, NULL);
     getPoints();
     // output the info on the object
     // origion coordinates, width, height, orientation
@@ -217,6 +223,8 @@ bool UFunczoneobst::handleCommand(UServerInMsg * msg, void * extra)
           angle = calcAngle(0,2);
         }
       }
+      center_x+=xshift;
+      center_y+=yshift;
       cout<<"angle "<<angle<<endl;
       cout<<"origin"<<center_x<<'\t'<<center_y<<endl;
       cout<<width<<'\t'<<height<<'\n';
@@ -241,6 +249,8 @@ bool UFunczoneobst::handleCommand(UServerInMsg * msg, void * extra)
       // get width ang height of the object
       double width = dist[2];
       double height = dist[0];
+      center_x+=xshift;
+      center_y+=yshift;
       cout<<"origin"<<center_x<<'\t'<<center_y<<endl;
       cout<<width<<'\t'<<height<<'\n';
       // get angle

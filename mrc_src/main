@@ -13,7 +13,7 @@ length  = 0.35
 % distance from the expected robot position to the guidemark
 dist = 0.5-0.26
 % the first guidemark number
-gmno = 13
+gmno = 2
 % shift value
 xshift = 0
 yshift = 0
@@ -224,13 +224,17 @@ call "plan"
 gcounter=gcounter+1
 wait 1
 call "update"
-xCurr = xCurr-xshift
-yXurr = yCurr-yshift
-thCurr = thCurr-thshift
+%xCurr = xCurr-xshift
+%yXurr = yCurr-yshift
+%thCurr = thCurr-thshift
 stringcat "zoneobst detect x="xCurr" y="yCurr" th="thCurr
 laser "$string"
 if (gcounter<8) "detectLoop"
-laser "zoneobst recog"
+xshift = -xshift
+yshift = -yshift
+thshift = -thshift
+stringcat "zoneobst recog xshift="xshift" yshift="yshift" thshift="thshift
+laser "$string"
 return
 
 % function: update
@@ -342,26 +346,24 @@ return
 % drive the robot back to the start square
 label "backToOrig"
 wait 1
-xEnd = 2
-yEnd = 0.5
-thEnd = 0
-call "plan"
-wait 1
-% to make sure it inside the square
-call "update"
-rotAng = -thCurr
-turn  rotAng "rad" @v 0.1:($irdistfrontleft<=0.05) | ($irdistfrontright<=0.05) 
+turn 45 @v 0.1
 stop
 wait 0.5
-fwd -1.72 @v 0.1
-turn -90
-ignoreobstacles
-fwd 0.12 @v 0.1
+call "update"
+dist = 0.22-xCurr
+fwd dist @v 0.1
 stop
-wait 1
-laser "scanset logclose"
-laser "odopose log=false"
+wait 0.5
+turn -90
+stop  
+wait 0.5
+ignoreobstacles
+drive @v 0.1 :($irdistfrontmiddle<=0.2)
+stop
 return
 
 label "end"
+wait 1
+laser "scanset logclose"
+laser "odopose log=false"
 stop
