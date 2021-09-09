@@ -2,7 +2,7 @@
 ## Run the script  
 bash main.sh
 ## Configuration  
-- see in objConfig.yaml
+- check objConfig.yaml
 ![avatar](maze.jpg)
 ## Language
 - SMR-CL
