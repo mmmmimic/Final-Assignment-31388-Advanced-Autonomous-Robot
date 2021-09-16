@@ -18,7 +18,7 @@ bash main.sh
 6. Find the object information, including shape, centroid coordinates, orientation, width and height
 7. Go back to origin
 
-## Process
+## TODO
 - [x] follow guidemark    
 - [x] spawn objects
 - [x] detect objects
